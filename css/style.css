@@ -11,18 +11,19 @@ body {
     align-items: center;  */
 }
 
+.graph,
 .form {
     align-items: center; 
     height: 310px;
     width: 400px;
 }
 
-/* .form {
+.graph {
     background-color: #fff;
     box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
     border-radius: 10px;
     padding: 3.75vw 4.6875vw 3.75vw 3.93vw;
-} */
+}
 
 .heading {
     display: flex;

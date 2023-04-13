@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
         integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -72,16 +73,46 @@
                                 placeholder="Вероятность состояний p0,...,pk" readonly>
                         </div>
                     </div>
-                    <!-- <div class="form">
-                        <div class="heading">
-                            <span>График</span>
-                        </div>
-                        <div class="graph"></div>
-                    </div> -->
+                    <div class="form-graph">
+                        <canvas id="grahp" width="300px" height="300px"></canvas>
+                    </div>
                 </div>
             </div>
 
             <script src="script.js"></script>
+
+            <script type="module">
+                let ctx = document.querySelector('#grahp').getContext('2d');
+                let myChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: [0, 0.25, 0.5, 0.75, 1],
+                        datasets: [{
+                            label: 'p0',
+                            data: [1, 2, 3, 4, 5],//данные должны быть динамическими в зависимости от ввода и от расчета выше. 
+                            backgroundColor: [
+                                'white'
+                            ],
+                            borderColor: [
+                                '#80d8ff'
+                            ],
+                            borderWidth: 4
+                        },
+                        {
+                            label: 'p1',
+                            data: [0.25, 1.25, 2.25, 3.25, 4.25], // dynamic data for p1
+                            backgroundColor: [
+                                'white'
+                            ],
+                            borderColor: [
+                                '#ff8a80'
+                            ],
+                            borderWidth: 4
+                        }],
+                    },
+                    options: {}
+                })
+            </script>
 
 </body>
 

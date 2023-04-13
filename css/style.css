@@ -42,3 +42,8 @@ body {
 #create-event-btn {
     width: 250px;
 }
+
+.form-graph {
+    height: 350px;
+    width: 350px;
+}

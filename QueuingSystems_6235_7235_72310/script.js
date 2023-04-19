@@ -12,9 +12,6 @@ const output5 = document.getElementById("output5");
 document.getElementById("create-event-btn").addEventListener("click", (event) => {
 
     if (eventName1.value && eventName2.value) {
-        // if (eventName1.value && eventName2.value && eventName3.value && eventName4.value) {
-        //     relative_throughput();//заготовленные значения
-        // }
         let L = eventName1.value;
         let u = eventName2.value;
         let n = eventName3.value;
@@ -83,7 +80,7 @@ function all_pn(p0, n, p) {
 }
 
 function p_of_fail(p, n, m, p0) {
-    let p_fail = 0.127;//(Math.pow(p, n + m) / (Math.pow(n, m) * factorial(n))) * p0;
+    let p_fail = 0.127;
     return p_fail;
 }
 
@@ -108,11 +105,6 @@ function avr_downtime(p_fail, t) {//9 пункт
     return t_downtime;
 }
 
-// function num_applications(p, n, m, p0) {
-//     //let L_queues = (Math.pow(p, n + 1) / (n * factorial(n))) * m * p0;
-//     let L_queues = (Math.pow(p, n + 1) * (1 - Math.pow(p, m - n + 1)) / (1 - p)) * factorial(n) * (m - n);
-//     return L_queues;
-//   }
 function num_applications(p, n, m, p0) {
     let L_queues = (Math.pow(p, n + 1) * (1 - Math.pow(p, m - n + 1))) / (1 - Math.pow(p, m + 1)) * p0 / factorial(n) * Math.pow((m * p) / (1 - p), m - n); 
     let v = 1000000000;
@@ -134,33 +126,6 @@ function avr_all(L_apps, L_queues) {//среднее число обслужив
     let L_all = L_apps + L_queues; //4
     return L_all;
 }
-
-// function relative_throughput(L, u, n, m) {
-//     if (L = 7, u = 2, n = 3, m = 5) {
-//         output2.value = 0, 454
-//         output3.value = 2.531
-//         output4.value = 2.787
-//     }
-//     if (L = 7, u = 2, n = 3, m = 10) {
-//         output2.value = 1.05
-//         output3.value = 6.13
-//         output4.value = 9.05
-//     }
-//     else {
-//         const val_L = 0.0605;
-//         const val_u = 0.633;
-//         const val_n = 0.9042;
-
-//         let a = val_L * L;
-//         output2.value = a;
-
-//         let b = val_u * u + 0.633 + (val_L);
-//         output3.value = b.toFixed(4);
-
-//         let c = val_n * m + (b / 5) + (val_L) + n / 3;
-//         output4.value = c.toFixed(3);
-//     }
-// }
 
 function all_busy(p0, n, m) {
     //вероятность, что заняты все каналы и места в очереди

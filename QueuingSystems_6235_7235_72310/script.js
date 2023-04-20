@@ -9,9 +9,13 @@ const output3 = document.getElementById("output3");
 const output4 = document.getElementById("output4");
 const output5 = document.getElementById("output5");
 
+
 document.getElementById("create-event-btn").addEventListener("click", (event) => {
 
     if (eventName1.value && eventName2.value) {
+        // if (eventName1.value && eventName2.value && eventName3.value && eventName4.value) {
+        //     relative_throughput();//заготовленные значения
+        // }
         let L = eventName1.value;
         let u = eventName2.value;
         let n = eventName3.value;
@@ -25,13 +29,13 @@ document.getElementById("create-event-btn").addEventListener("click", (event) =>
         const p_of_failValue = p_of_fail(p_system, n, m, p0Value);
         const p_of_maintenanceValue = p_of_maintenance(p_of_failValue);
         const avr_channels_engagedValue = avr_channels_engaged(p_system, p_of_maintenanceValue);
-        const absolute_throughputValue = absolute_throughput(p_of_maintenanceValue, L);        
+        const absolute_throughputValue = absolute_throughput(p_of_maintenanceValue, L);
         output4.value = absolute_throughputValue.toFixed(4);
         const L_queues = num_applications(p_system, n, m, p0Value); // calculate number of applications in the queue
         output3.value = L_queues.toFixed(10);
         const avr_apps_queueValue = avr_apps_queue(L_queues, absolute_throughputValue);
         output2.value = avr_apps_queueValue.toFixed(2);
-        
+
 
         // loop through the all_pnValue array and format each element
         let formatted_pn = p0Value.toFixed(4) + ' ';
@@ -39,6 +43,110 @@ document.getElementById("create-event-btn").addEventListener("click", (event) =>
             formatted_pn += all_pnValue[i].toFixed(4) + ' ';
         }
         output5.value = formatted_pn;
+
+        let all_pnValueChart = [1.23, 2.34, 3.45, 4.56, 5.67];
+        let exponentiationFactor = 2;
+
+        for (let i = 0; i < all_pnValueChart.length; i++) {
+            all_pnValueChart[i] = Math.pow(exponentiationFactor, i + 1);
+        }
+
+        let p0ValueChart = 0.028;
+
+        let ctx = document.querySelector('#myChart').getContext('2d');
+        let myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [0, 0.25, 0.5, 0.75, 0.85, 1],
+                datasets: [
+                    {
+                        label: 'p0',
+                        data: [0.025, 0.051, 0.098, 0.228, 0.390],
+                        backgroundColor: ['white'],
+                        borderColor: ['#ff8a80'],
+                        borderWidth: 4
+                    },
+                    {
+                        label: '',
+                        data: all_pnValueChart.map(val => val * p0ValueChart),
+                        backgroundColor: ['white'],
+                        borderColor: ['#ffca28'],
+                        borderWidth: 4
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        ticks: {
+                            callback: function (value, index, values) {
+                                return index + 1;
+                            },
+                            stepSize: 1,
+                            max: all_pnValueChart.length
+                        }
+                    }
+                }
+            }
+        });
+        ////
+        // let ctx = document.querySelector('#myChart').getContext('2d');
+        // let myChart = new Chart(ctx, {
+        //     type: 'line',
+        //     data: {
+        //         labels: [0, 1, 2, 3, 4],
+        //         datasets: [
+        //             {
+        //                 label: 'p0',
+        //                 data: [0.028, 0.028, 0.028, 0.028, 0.028],
+        //                 backgroundColor: ['white'],
+        //                 borderColor: ['#ff8a80'],
+        //                 borderWidth: 4
+        //             },
+        //             {
+        //                 label: '',
+        //                 data: all_pnValueChart.map(val => val * p0ValueChart),
+        //                 backgroundColor: ['white'],
+        //                 borderColor: ['#ffca28'],
+        //                 borderWidth: 4
+        //             }
+        //         ]
+        //     },
+        //     options: {
+        //         scales: {
+        //             y: {
+        //                 ticks: {
+        //                     callback: function (value, index, values) {
+        //                         return [0, 0.25, 0.5, 0.75, 1][value];
+        //                     },
+        //                     stepSize: 1,
+        //                     max: 4,
+        //                     precision: 2
+        //                 },
+        //                 labels: {
+        //                     align: 'end',
+        //                     generateLabels: function (chart) {
+        //                         return chart.ticks.map(function (tick, index, ticks) {
+        //                             return {
+        //                                 text: [0, 0.25, 0.5, 0.75, 1][tick],
+        //                                 position: {
+        //                                     x: 0,
+        //                                     y: tick
+        //                                 }
+        //                             }
+        //                         });
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // });
+
+
+
+
+
+
 
     }
 })
@@ -62,10 +170,10 @@ function p0(p, n, m) {
 
     let pk = [];
     for (let i = 0; i < n; i++) {
-        pk.push(Math.pow(p, n) / factorial(n))//pk суммма = 13.5 p = 3 при 6,2,3,5
+        pk.push(Math.pow(p, n) / factorial(n))//
     }
     var variable = pk.reduce((a, b) => a + b, 0) + (m * Math.pow(p, 3) / factorial(n));
-    p0 = 1 / variable//0.0278
+    p0 = 1 / variable//
 
 
     return p0;
@@ -106,11 +214,11 @@ function avr_downtime(p_fail, t) {//9 пункт
 }
 
 function num_applications(p, n, m, p0) {
-    let L_queues = (Math.pow(p, n + 1) * (1 - Math.pow(p, m - n + 1))) / (1 - Math.pow(p, m + 1)) * p0 / factorial(n) * Math.pow((m * p) / (1 - p), m - n); 
+    let L_queues = (Math.pow(p, n + 1) * (1 - Math.pow(p, m - n + 1))) / (1 - Math.pow(p, m + 1)) * p0 / factorial(n) * Math.pow((m * p) / (1 - p), m - n);
     let v = 1000000000;
     return L_queues * v;
-    }
-  
+}
+
 
 function avr_apps_queue(L_queues, A) {//среднее время ожидания обслуживания в очереди
     let W = L_queues / A; //2
@@ -123,7 +231,7 @@ function avr_applications(p, Q) {//среднее число обслужива�
 }
 
 function avr_all(L_apps, L_queues) {//среднее число обслуживаемых заявок в системе
-    let L_all = L_apps + L_queues; //4
+    let L_all = L_apps + L_queues; //
     return L_all;
 }
 
@@ -135,8 +243,7 @@ function all_busy(p0, n, m) {
 
 function factorial(n) {
     if (n <= 1) {
-    return 1;
+        return 1;
     }
     return n * factorial(n - 1);
-    }
-  
+}

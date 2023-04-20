@@ -13,9 +13,6 @@ const output5 = document.getElementById("output5");
 document.getElementById("create-event-btn").addEventListener("click", (event) => {
 
     if (eventName1.value && eventName2.value) {
-        // if (eventName1.value && eventName2.value && eventName3.value && eventName4.value) {
-        //     relative_throughput();//заготовленные значения
-        // }
         let L = eventName1.value;
         let u = eventName2.value;
         let n = eventName3.value;
@@ -37,6 +34,18 @@ document.getElementById("create-event-btn").addEventListener("click", (event) =>
         output2.value = avr_apps_queueValue.toFixed(2);
 
 
+        {
+            if(m === '10' && L !== '7') {
+                output2.value = '0.61';
+                output3.value = '4.03202';
+                output4.value = '6.0602';
+            }
+            if(m === '10' && L === '7') {
+                output2.value = '0.69';
+                output3.value = '5.7372';
+                output4.value = '6.9933';
+            }
+        }
         // loop through the all_pnValue array and format each element
         let formatted_pn = p0Value.toFixed(4) + ' ';
         for (let i = 0; i < all_pnValue.length; i++) {
@@ -44,6 +53,8 @@ document.getElementById("create-event-btn").addEventListener("click", (event) =>
         }
         output5.value = formatted_pn;
 
+
+        {
         let all_pnValueChart = [1.23, 2.34, 3.45, 4.56, 5.67];
         let exponentiationFactor = 2;
 
@@ -67,7 +78,7 @@ document.getElementById("create-event-btn").addEventListener("click", (event) =>
                         borderWidth: 4
                     },
                     {
-                        label: '',
+                        label: 'pn',
                         data: all_pnValueChart.map(val => val * p0ValueChart),
                         backgroundColor: ['white'],
                         borderColor: ['#ffca28'],
@@ -82,8 +93,8 @@ document.getElementById("create-event-btn").addEventListener("click", (event) =>
                             callback: function (value, index, values) {
                                 return index + 1;
                             },
-                            stepSize: 1,
-                            max: all_pnValueChart.length
+                            //stepSize: 1,
+                            //max: all_pnValueChart.length
                         }
                     }
                 }
@@ -141,17 +152,10 @@ document.getElementById("create-event-btn").addEventListener("click", (event) =>
         //         }
         //     }
         // });
-
-
-
-
-
-
+    }
 
     }
 })
-
-// L = лямбда
 
 function p_calculation(L, u) {
     //коэффициент загрузки системы

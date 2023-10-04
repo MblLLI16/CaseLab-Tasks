@@ -1,2 +1,2 @@
-# QueuingSystems
-Моделирование выч. систем
+# Case Lab Tasks
+Домашние задания для Case Lab.

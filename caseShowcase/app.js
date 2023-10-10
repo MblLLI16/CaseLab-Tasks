@@ -20,8 +20,9 @@ let order = [];
 
 function addToBasket(productId) {
     // TODO: добавить проверку наличия товара в заказе (при наличии выдать alert, что товар уже в корзине)
-    if (!order.includes(products[productId - 1])) {
-        order.push(products[productId - 1]);
+    const productToAdd = products[products.findIndex(product => productId === product.id)];
+    if (!order.some(item => item.id === productId)) {
+        order = [...order, productToAdd]
     } else window.alert('Данный товар уже находится в корзине, повторное добавление запрещено.');
 
     // Эти строчки не трогаем, они отвечают за переотрисовку страницы
@@ -33,8 +34,8 @@ function removeFromBasket(productId) {
     // TODO: описать логику удаления товара из корзины
     const indexToRemove = order.findIndex(product => productId === product.id);
     if (indexToRemove !== -1) {
-        order.splice(indexToRemove, 1);
-    } 
+        order = order.slice(0, indexToRemove).concat(order.slice(indexToRemove + 1));
+    }
     // Эти строчки не трогаем, они отвечают за переотрисовку страницы
     renderCart();
     rerenderTotalPrice();

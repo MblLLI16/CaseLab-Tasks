@@ -1,20 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
-    let isButtonEnabeled = false;
-
     const myBtn = document.getElementById('myBtn');
     const spoiler = document.getElementById('spoiler');
 
+    let isButtonEnabled = false;
     myBtnClick();
     EscClick();
+    
 
     function myBtnClick() {
-
         myBtn.addEventListener('click', () => {
-            if (!isButtonEnabeled) {
-                isButtonEnabeled = true;
+            if (!isButtonEnabled) {
+                isButtonEnabled = true;
                 spoiler.classList.remove('closed');
             } else {
-                isButtonEnabeled = false;
+                isButtonEnabled = false;
                 spoiler.classList.add('closed');
             }
         })
@@ -22,15 +21,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function EscClick() {
         document.addEventListener('keydown', (event) => {
-            if (isButtonEnabeled && event.key === 'Escape') {
-                isButtonEnabeled = false;
+            if (isButtonEnabled && event.key === 'Escape') {
+                isButtonEnabled = false;
                 spoiler.classList.add('closed');
             }
         })
     }
 
 })
-
-
-
-

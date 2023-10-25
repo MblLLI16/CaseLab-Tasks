@@ -3,10 +3,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const selectorOfUsers = document.querySelector('#user-todo');
       const addTaskButton = document.querySelector('.addTask-button');
       const todoList = document.querySelector('#todo-list');
-      isOnline();
+      const errorMessage = ''
+
+      checkOnlineStatus();
       fetchUsersAndTasks();
 
       addTaskButton.addEventListener('click', (event) => {
+            event.preventDefault();
+
             const taskTitle = newTodoInput.value;
             const userId = selectorOfUsers.value;
             const completed = false;
@@ -14,13 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (taskTitle === '') {
                   alert('Введите текст новой задачи.');
-                  event.preventDefault();
+                  return;
             } else if (userId === 'select user') {
                   alert('Выберите пользователя, от которого добавляется задача.');
-                  event.preventDefault();
+                  return;
             }
-            console.log('пользователь выбран, срабатывает код создания таски с его авторством.')
-            addTask(taskTitle, userId, completed, authorName)
+            addTask(taskTitle, userId, completed, authorName);
+            alert('Задача добавлена.');
+            newTodoInput.value = '';
       })
 
       async function fetchUsersAndTasks() {
@@ -33,12 +38,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
                   // для селектора
                   users.forEach(user => {
-                        const userNameOption = document.createElement('option');
-                        userNameOption.id = 'option-' + user.id;
-                        userNameOption.value = user.id; // ID пользователя
-                        userNameOption.innerHTML = user.name;
-                        selectorOfUsers.appendChild(userNameOption);
+                        const userOptionElement = document.createElement('option');
+                        userOptionElement.id = 'option-' + user.id;
+                        userOptionElement.value = user.id; // ID пользователя
+                        userOptionElement.innerHTML = user.name;
+                        selectorOfUsers.appendChild(userOptionElement);
                   });
+
+                  // Эмуляция ошибки 500
+                  if (Math.random() < 0.8) {
+                        throw new Error('Ошибка сервера 500: Не удалось получить задачи пользователя');
+                  }
 
                   for (const user of users) {
                         const tasksResponse = await fetch(`https://jsonplaceholder.typicode.com/todos?userId=${user.id}`);
@@ -53,39 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
                   }
             } catch (error) {
                   console.log(`Ошибка сети: ${error.message}`);
-                  console.log(`Статус ответа: ${error.response.status}`);
-                  alert('Произошла ошибка при получении данных с сервера. Пожалуйста, попробуйте позже.');
+                  displayErrorMessage(`Произошла ошибка при работе сервиса. Пожалуйста, перезагрузите страницу или попробуйте позже.`);
             }
       }
-
-      async function addTask(taskTitle, userId, completed, authorName) {
-            try {
-                const taskResponse = await fetch(`https://jsonplaceholder.typicode.com/todos`, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        userId: userId,
-                        title: taskTitle,
-                        completed: completed,
-                    }),
-                    headers: {
-                        'Content-type': 'application/json; charset=UTF-8'
-                    }
-                });
-        
-                if (!taskResponse.ok) {
-                    throw new Error('Ошибка при добавлении задачи');
-                }
-        
-                const newTask = await taskResponse.json();
-                
-                // Добавляем задачу в интерфейс
-                renderTask(newTask, authorName);
-        
-            } catch (error) {
-                console.error('Произошла ошибка:', error);
-                alert('Произошла ошибка при добавлении задачи. Пожалуйста, попробуйте позже.');
-            }
-        }        
 
       function renderTask(task, authorName) {
             const taskId = task.id;
@@ -141,11 +121,56 @@ document.addEventListener('DOMContentLoaded', () => {
             todoList.appendChild(listItem);
       }
 
+      function displayErrorMessage(message) {
+            const errorForm = document.querySelector('.error-form');
+            const errorMessage = document.querySelector('.error-message');
+            errorMessage.textContent = message;
+            errorForm.style.display = 'block'; // Показать сообщение об ошибке
+      }
+
+
+      async function addTask(taskTitle, userId, completed, authorName) {
+            try {
+                  const taskResponse = await fetch(`https://jsonplaceholder.typicode.com/todos`, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                              userId: userId,
+                              title: taskTitle,
+                              completed: completed,
+                        }),
+                        headers: {
+                              'Content-type': 'application/json; charset=UTF-8'
+                        }
+                  });
+
+                  console.log('Статус ответа сервера (addTask):', taskResponse.status);
+
+                  if (!taskResponse.ok) {
+                        throw new Error('Ошибка при добавлении задачи');
+                  }
+
+                  const newTask = await taskResponse.json();
+
+                  // Добавляем задачу в интерфейс
+                  renderTask(newTask, authorName);
+
+            } catch (error) {
+                  console.log(`Ошибка сети: ${error.message}`);
+                  if (error.status) {
+                        alert(`Произошла ошибка при добавлении данных. Пожалуйста, попробуйте позже.\nОшибка сети: ${error.message}\nСтатус ответа: ${error.status}`);
+                  } else {
+                        alert(`Произошла ошибка при получении данных. Пожалуйста, попробуйте позже.\nОшибка сети: ${error.message}`);
+                  }
+            }
+      }
+
       async function removeTask(taskId) {
             try {
                   const response = await fetch(`https://jsonplaceholder.typicode.com/todos/${taskId}`, {
                         method: 'DELETE',
                   });
+
+                  console.log('Статус ответа сервера (removeTask):', response.status);
 
                   if (!response.ok) {
                         throw new Error('Ошибка сети!');
@@ -158,8 +183,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             } catch (error) {
                   console.log(`Ошибка сети: ${error.message}`);
-                  console.log(`Статус ответа: ${error.response.status}`);
-                  alert('Произошла ошибка при получении данных с сервера. Пожалуйста, попробуйте позже.');
+                  if (error.status) {
+                        alert(`Произошла ошибка при удалении данных. Пожалуйста, попробуйте позже.\nОшибка сети: ${error.message}\nСтатус ответа: ${error.status}`);
+                  } else {
+                        alert(`Произошла ошибка при удалении данных. Пожалуйста, попробуйте позже.\nОшибка сети: ${error.message}`);
+                  }
             }
       }
 
@@ -174,26 +202,29 @@ document.addEventListener('DOMContentLoaded', () => {
                         headers: {
                               'Content-type': 'application/json; charset=UTF-8'
                         }
-                  })
+                  });
+
+                  console.log('Статус ответа сервера (toggleTaskStatus):', response.status);
 
                   if (!response.ok) {
                         throw new Error('Ошибка сети!');
                   }
 
-                  const updatedTask = await response.json()
-                  console.log('Ответ от сервера:', updatedTask);
+                  const updatedTask = await response.json();
                   const checkbox = document.getElementById(`todo-${taskId}`).querySelector('.checkbox');
                   checkbox.checked = updatedTask.completed;
-                  console.log('изменили на сервере')
             } catch (error) {
                   console.log(`Ошибка сети: ${error.message}`);
-                  console.log(`Статус ответа: ${error.response.status}`);
-                  alert('Произошла ошибка при получении данных с сервера. Пожалуйста, попробуйте позже.');
+                  if (error.status) {
+                        alert(`Произошла ошибка при изменении данных. Пожалуйста, попробуйте позже.\nОшибка сети: ${error.message}\nСтатус ответа: ${error.status}`);
+                  } else {
+                        alert(`Произошла ошибка при изменении данных. Пожалуйста, попробуйте позже.\nОшибка сети: ${error.message}`);
+                  }
             }
-
       }
 
-      function isOnline() {
+
+      function checkOnlineStatus() {
             document.addEventListener('click', () => {
                   if (!navigator.onLine) {
                         alert('Вы оффлайн. Подключитесь к интернету, чтобы выполнить это действие.');

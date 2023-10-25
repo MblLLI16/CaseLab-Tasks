@@ -1,16 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
       const selectorOfUsers = document.querySelector('#user-todo');
       const todoList = document.querySelector('#todo-list');
-      let userInfoArr = [];
       isOnline();
       fetchUsers();
 
       selectorOfUsers.addEventListener('change', () => {
-            const selectedOptionId = selectorOfUsers.value;
-            const selectedUserId = selectedOptionId.split('-')[1]; // Извлекаем user ID из id элемента
+            const selectedUserId = selectorOfUsers.value; // ID пользователя
             fetchUserTasks(selectedUserId);
-        });
-        
+      });
+
 
       async function fetchUserTasks(selectedUserId) {
             try {
@@ -19,33 +17,58 @@ document.addEventListener('DOMContentLoaded', () => {
                         throw new Error('Ошибка сети!');
                   }
                   const data = await response.json();
-                  
+
                   todoList.innerHTML = '';
-                  data.forEach(element => {
+                  data.forEach(task => {
+                        const taskId = task.id;
+                        const taskTitle = task.title;
+                        const taskCompleted = task.completed;
+                        const authorName = 'имя пользователя';
+
                         const listItem = document.createElement('li');
                         listItem.className = 'todo-item';
-                        listItem.id = 'todo-' + element.id;
+                        listItem.id = 'todo-' + taskId;
 
                         const checkbox = document.createElement('input');
                         checkbox.type = 'checkbox';
                         checkbox.className = 'checkbox';
-                        checkbox.checked = element.completed;
+                        checkbox.checked = taskCompleted;
+
+                        // Изменение checkbox таски
+                        checkbox.addEventListener('click', (event) => {
+                              event.preventDefault(); // Избегаем изменений до ответа от сервера
+                              toggleTaskStatus(taskId, taskCompleted);
+                        });
+
+                        const taskDiv = document.createElement('div');
+                        taskDiv.className = 'task';
 
                         const taskText = document.createElement('span');
-                        taskText.className = 'task';
-                        taskText.innerHTML = element.title;
+                        taskText.textContent = taskTitle;
+
+                        const bySpan = document.createElement('span');
+                        bySpan.textContent = ' by ';
+                        bySpan.style.fontStyle = 'italic';
+
+                        const authorSpan = document.createElement('span');
+                        authorSpan.textContent = authorName;
+                        authorSpan.style.fontWeight = 'bold';
+
+                        taskDiv.appendChild(taskText);
+                        taskDiv.appendChild(bySpan);
+                        taskDiv.appendChild(authorSpan);
 
                         const deleteButton = document.createElement('span');
                         deleteButton.className = 'close';
                         deleteButton.innerHTML = 'X';
 
+                        // Удаление таски
                         deleteButton.addEventListener('click', () => {
-                              console.log('нажата del task button');
-                              removeTask(element.id);
-                        })
+                              removeTask(taskId);
+                        });
 
                         listItem.appendChild(checkbox);
-                        listItem.appendChild(taskText);
+                        listItem.appendChild(taskDiv); 
                         listItem.appendChild(deleteButton);
 
                         todoList.appendChild(listItem);
@@ -63,12 +86,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         throw new Error('Ошибка сети!');
                   }
                   const data = await response.json();
-                  data.forEach(element => {
-                        userInfoArr.push({ userId: element.id, userName: element.name});
-                        const userName = document.createElement('option');
-                        userName.id = 'option-' + element.id;
-                        userName.innerHTML = element.name;
-                        selectorOfUsers.appendChild(userName);
+                  data.forEach(user => {
+                        const userNameOption = document.createElement('option');
+                        userNameOption.id = 'option-' + user.id;
+                        userNameOption.value = user.id; // ID пользователя
+                        userNameOption.innerHTML = user.name;
+                        selectorOfUsers.appendChild(userNameOption);
                   });
 
             } catch (error) {
@@ -90,7 +113,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                   const taskToRemove = document.getElementById(`todo-${taskId}`);
                   if (taskToRemove) {
-                        console.log('выбанная задача пользователя удалена');
                         taskToRemove.remove();
                   }
 
@@ -98,6 +120,33 @@ document.addEventListener('DOMContentLoaded', () => {
                   console.log('There is a problem: ' + error);
                   alert('Произошла ошибка при получении данных с сервера. Пожалуйста, попробуйте позже.');
             }
+      }
+
+      async function toggleTaskStatus(taskId, taskCompleted) {
+            const newStatus = !taskCompleted;
+            try {
+                  const response = await fetch(`https://jsonplaceholder.typicode.com/todos/${taskId}`, {
+                        method: 'PATCH',
+                        body: JSON.stringify({
+                              completed: newStatus,
+                        }),
+                        headers: {
+                              'Content-type': 'application/json; charset=UTF-8'
+                        }
+                  })
+
+                  if (!response.ok) {
+                        throw new Error('Ошибка сети!');
+                  }
+
+                  const checkbox = document.getElementById(`todo-${taskId}`).querySelector('.checkbox');
+                  checkbox.checked = newStatus;
+                  console.log('изменили на сервере')
+            } catch (error) {
+                  console.log('There is a problem: ' + error);
+                  alert('Произошла ошибка при получении данных с сервера. Пожалуйста, попробуйте позже.');
+            }
+
       }
 
       function isOnline() {

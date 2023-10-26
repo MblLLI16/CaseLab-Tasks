@@ -3,9 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const selectorOfUsers = document.querySelector('#user-todo');
       const addTaskButton = document.querySelector('.addTask-button');
       const todoList = document.querySelector('#todo-list');
-      const errorMessage = ''
 
-      checkOnlineStatus();
       fetchUsersAndTasks();
 
       addTaskButton.addEventListener('click', (event) => {
@@ -24,11 +22,13 @@ document.addEventListener('DOMContentLoaded', () => {
                   return;
             }
             addTask(taskTitle, userId, completed, authorName);
-            alert('Задача добавлена.');
             newTodoInput.value = '';
       })
 
       async function fetchUsersAndTasks() {
+            if (!checkOnlineStatus()) {
+                  return;
+            }
             try {
                   const usersResponse = await fetch('https://jsonplaceholder.typicode.com/users');
                   if (!usersResponse.ok) {
@@ -44,11 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         userOptionElement.innerHTML = user.name;
                         selectorOfUsers.appendChild(userOptionElement);
                   });
-
-                  // Эмуляция ошибки 500
-                  if (Math.random() < 0.8) {
-                        throw new Error('Ошибка сервера 500: Не удалось получить задачи пользователя');
-                  }
 
                   for (const user of users) {
                         const tasksResponse = await fetch(`https://jsonplaceholder.typicode.com/todos?userId=${user.id}`);
@@ -122,14 +117,23 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       function displayErrorMessage(message) {
+            // Показать сообщение об ошибке
             const errorForm = document.querySelector('.error-form');
             const errorMessage = document.querySelector('.error-message');
             errorMessage.textContent = message;
-            errorForm.style.display = 'block'; // Показать сообщение об ошибке
+            errorForm.style.display = 'block';
+      }
+
+      function hideErrorMessage() {
+            const errorForm = document.querySelector('.error-form');
+            errorForm.style.display = 'none';
       }
 
 
       async function addTask(taskTitle, userId, completed, authorName) {
+            if (!checkOnlineStatus()) {
+                  return;
+            }
             try {
                   const taskResponse = await fetch(`https://jsonplaceholder.typicode.com/todos`, {
                         method: 'POST',
@@ -153,18 +157,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
                   // Добавляем задачу в интерфейс
                   renderTask(newTask, authorName);
+                  alert('Задача добавлена.');
+                  // Скрыть сообщение об ошибке
+                  hideErrorMessage();
 
             } catch (error) {
                   console.log(`Ошибка сети: ${error.message}`);
-                  if (error.status) {
-                        alert(`Произошла ошибка при добавлении данных. Пожалуйста, попробуйте позже.\nОшибка сети: ${error.message}\nСтатус ответа: ${error.status}`);
-                  } else {
-                        alert(`Произошла ошибка при получении данных. Пожалуйста, попробуйте позже.\nОшибка сети: ${error.message}`);
-                  }
+                  displayErrorMessage(`Произошла ошибка при работе сервиса. Пожалуйста, перезагрузите страницу или попробуйте позже.`);
             }
       }
 
       async function removeTask(taskId) {
+            if (!checkOnlineStatus()) {
+                  return;
+            }
             try {
                   const response = await fetch(`https://jsonplaceholder.typicode.com/todos/${taskId}`, {
                         method: 'DELETE',
@@ -179,19 +185,20 @@ document.addEventListener('DOMContentLoaded', () => {
                   const taskToRemove = document.getElementById(`todo-${taskId}`);
                   if (taskToRemove) {
                         taskToRemove.remove();
+                        // Скрыть сообщение об ошибке
+                        hideErrorMessage();
                   }
 
             } catch (error) {
                   console.log(`Ошибка сети: ${error.message}`);
-                  if (error.status) {
-                        alert(`Произошла ошибка при удалении данных. Пожалуйста, попробуйте позже.\nОшибка сети: ${error.message}\nСтатус ответа: ${error.status}`);
-                  } else {
-                        alert(`Произошла ошибка при удалении данных. Пожалуйста, попробуйте позже.\nОшибка сети: ${error.message}`);
-                  }
+                  displayErrorMessage(`Произошла ошибка при работе сервиса. Пожалуйста, перезагрузите страницу или попробуйте позже.`);
             }
       }
 
       async function toggleTaskStatus(taskId, taskCompleted) {
+            if (!checkOnlineStatus()) {
+                  return;
+            }
             const newStatus = !taskCompleted;
             try {
                   const response = await fetch(`https://jsonplaceholder.typicode.com/todos/${taskId}`, {
@@ -213,35 +220,24 @@ document.addEventListener('DOMContentLoaded', () => {
                   const updatedTask = await response.json();
                   const checkbox = document.getElementById(`todo-${taskId}`).querySelector('.checkbox');
                   checkbox.checked = updatedTask.completed;
+                  // Скрыть сообщение об ошибке
+                  hideErrorMessage();
             } catch (error) {
                   console.log(`Ошибка сети: ${error.message}`);
-                  if (error.status) {
-                        alert(`Произошла ошибка при изменении данных. Пожалуйста, попробуйте позже.\nОшибка сети: ${error.message}\nСтатус ответа: ${error.status}`);
-                  } else {
-                        alert(`Произошла ошибка при изменении данных. Пожалуйста, попробуйте позже.\nОшибка сети: ${error.message}`);
-                  }
+                  displayErrorMessage(`Произошла ошибка при работе сервиса. Пожалуйста, перезагрузите страницу или попробуйте позже.`);
             }
       }
 
 
       function checkOnlineStatus() {
-            document.addEventListener('click', () => {
-                  if (!navigator.onLine) {
-                        alert('Вы оффлайн. Подключитесь к интернету, чтобы выполнить это действие.');
-                  }
-            });
-
-            document.addEventListener('keydown', () => {
-                  if (!navigator.onLine) {
-                        alert('Вы оффлайн. Подключитесь к интернету, чтобы выполнить это действие.');
-                  }
-            });
-
-            document.addEventListener('submit', () => {
-                  if (!navigator.onLine) {
-                        alert('Вы оффлайн. Подключитесь к интернету, чтобы выполнить это действие.');
-                  }
-            });
+            if (!navigator.onLine) {
+                  displayErrorMessage(`Вы оффлайн. Подключитесь к интернету, чтобы выполнить это действие.`);
+                  return false;
+            }
+            else {
+                  hideErrorMessage();
+                  return true;
+            }
       }
 })
 
